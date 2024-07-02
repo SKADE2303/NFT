@@ -6,6 +6,10 @@ import {MoodNFT} from "../src/MoodNFT.sol";
 import {DeployScript} from "../script/DeployBasicNFT.s.sol";
 
 contract MoodNFTTest is Test {
+
+    error MoodNft__CantFlipMoodIfNotOwner();
+
+
     DeployScript public MoodNFT_deployer;
     MoodNFT public moodNFT;
     address USER = makeAddr("user");
@@ -17,6 +21,18 @@ contract MoodNFTTest is Test {
         moodNFT = new MoodNFT(HAPPY_MOOD_URI,SAD_MOOD_URI);
     
     }
+
+    function flipMood(uint256 tokenID) public {
+         if (getApproved(tokenId) != msg.sender && ownerOf(tokenId) != msg.sender) {
+            revert MoodNft__CantFlipMoodIfNotOwner();
+        }
+
+        if (s_tokenIdToState[tokenId] == NFTState.HAPPY) {
+            s_tokenIdToState[tokenId] = NFTState.SAD;
+        } else {
+            s_tokenIdToState[tokenId] = NFTState.HAPPY;
+        }
+    } 
     
     function testViewTokenURI() public{
         vm.prank(USER);
